@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block head %}
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      google.charts.load('current', {'packages':['corechart']});
+      google.charts.setOnLoadCallback(drawChart);
+
+      function drawChart() {
+        var data = google.visualization.arrayToDataTable([
+          ['Date', 'Cost'],
+
+          {% for cost in costs %}
+            ['{{ cost.created_date.strftime("%d%b%H:%M") }}', {{ cost.value }}],
+          {% endfor %}
+        ]);
+
+        var options = {
+          title: 'Promo price',
+          legend: { position: 'bottom' }
+        };
+
+        var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
+
+        chart.draw(data, options);
+      }
+    </script>
+{% endblock %}
+
+{% block content %}
+    <div id="curve_chart" style="width: 900px; height: 500px"></div>
+    {% for promo in promos %}
+        <div class="alert alert-primary">
+            <h2>{{ promo.header }}</h2>
+            <p>{{ promo.text }}</p>
+        </div>
+    {% endfor %}
+{% endblock %}
