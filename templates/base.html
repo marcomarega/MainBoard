@@ -14,7 +14,17 @@
 <header>
     <nav class="navbar navbar-light bg-light">
       <a class="navbar-brand" href="/"><h1>MainBoard</h1></a>
-      <div class="btn btn-primary">{{ username }}</div>
+        {% if current_user.is_authenticated %}
+        <div>
+            <a class="btn btn-primary" href="/profile/settings">{{ current_user.username }}</a>
+            <a class="btn btn-danger" href="/logout">Log out</a>
+        </div>
+        {% else %}
+        <div>
+            <a class="btn btn-primary" href="/login">Log in</a>
+            <a class="btn btn-primary" href="/registration">Registration</a>
+        </div>
+        {% endif %}
     </nav>
 </header>
 <!-- Begin page content -->

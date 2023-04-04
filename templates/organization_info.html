@@ -1,0 +1,14 @@
+{% extends "profile.html" %}
+
+{% block profile_content %}
+<h2><a href="{{ organization.url }}">{{ organization.name }}</a></h2>
+<h4>Promos</h4>
+<nav class="navbar navbar-light bg-light">
+    <div>
+        <a class="btn btn-primary" href="/profile/organizations/{{ organization.name }}/promos/not_verified">Not verified</a>
+        <a class="btn btn-primary" href="/profile/organizations/{{ organization.name }}/promos/verified">Verified</a>
+        <a class="btn btn-primary" href="/profile/organizations/{{ organization.name }}/promos/add">Add</a>
+    </div>
+</nav>
+{% block promos_list %} {% endblock %}
+{% endblock %}

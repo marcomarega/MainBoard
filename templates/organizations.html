@@ -1,0 +1,15 @@
+{% extends "profile.html" %}
+
+{% block profile_content %}
+    {% if organizations|length == 0 %}
+    <div class="alert alert-info">Аt the moment you do not have organizations</div>
+    {% else %}
+    {% for organization in organizations %}
+    <div class="alert alert-primary">
+        <h3><a href="{{ organization.url }}">{{ organization.name }}</a></h3>
+        <a class="btn btn-secondary" href="/profile/organizations/{{ organization.name }}">More information</a>
+    </div>
+    {% endfor %}
+    {% endif %}
+    <a class="btn btn-primary" href="/profile/organizations/add">Add organization</a>
+{% endblock %}

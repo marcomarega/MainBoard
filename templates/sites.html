@@ -1,0 +1,15 @@
+{% extends "profile.html" %}
+
+{% block profile_content %}
+    {% if sites|length == 0 %}
+    <div class="alert alert-info">Аt the moment you do not have websites</div>
+    {% else %}
+    {% for site in sites %}
+    <div class="alert alert-primary">
+        <h3><a href="{{ site.url }}">{{ site.name }}</a></h3>
+        <a class="btn btn-secondary" href="/profile/sites/{{ site.name }}">More information</a>
+    </div>
+    {% endfor %}
+    {% endif %}
+    <a class="btn btn-primary" href="/profile/sites/add">Add site</a>
+{% endblock %}

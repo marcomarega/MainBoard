@@ -1,0 +1,16 @@
+{% extends "organization_info.html" %}
+
+{% block promos_list %}
+{% if promos|length > 0 %}
+{% for promo in promos %}
+<div class="alert alert-info">
+    <div class="alert alert-primary">
+        <h2>{{ promo.header }}</h2>
+        <p>{{ promo.text }}</p>
+    </div>
+</div>
+{% endfor %}
+{% else %}
+<div class="alert alert-info">Аt the moment you do not have verified promos</div>
+{% endif %}
+{% endblock %}

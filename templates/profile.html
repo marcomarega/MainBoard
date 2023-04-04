@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>{{ current_user.username }}</h1>
+<p>current_user.status</p>
+<br>
+<nav class="navbar navbar-light bg-light">
+    <div>
+        <a class="btn btn-primary" href="/profile/settings">Settings</a>
+        <a class="btn btn-primary" href="/profile/sites">Sites</a>
+        <a class="btn btn-primary" href="/profile/organizations">Organizations</a>
+    </div>
+</nav>
+{% block profile_content %}{% endblock %}
+{% endblock %}

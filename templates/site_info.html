@@ -1,0 +1,17 @@
+{% extends "profile.html" %}
+
+{% block profile_content %}
+    <div class="alert alert-primary">
+        <h2><a href="{{ site.url }}">{{ site.name }}</a></h2>
+        <p>Views per day: {{ views_per_day }}</p>
+        <p>Total income: {{ site.total_income }}</p>
+        <p>Balance: {{ site.balance }}</p>
+        <a class="btn btn-light">Withdraw</a>
+        <br>
+        <h4>The code to be inserted into the site to show promos and log views</h4>
+        <div class="alert alert-dark">
+            &lt;iframe width = "300" height = "300" src = "http://127.0.0.1:8080/promo_table/{{ site.key }}" name = "iframe" scrolling = "auto"&gt;&lt;/iframe&gt;
+
+    </div>
+    <a class="btn btn-primary" href="/profile/sites">Back to all sites</a>
+{% endblock %}
