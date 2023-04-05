@@ -3,8 +3,9 @@ import threading
 from datetime import datetime, time, timedelta
 from time import sleep
 
-from flask import Flask, render_template, redirect, request
+from flask import Flask, render_template, redirect, request, jsonify
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
+
 from data import db_session
 from data.costs import Cost
 from data.organizations import Organization, AddOrganizationForm
@@ -25,7 +26,14 @@ last_cost = 0
 def load_user(user_id):
     db_sess = db_session.get_session()
     result = db_sess.query(User).get(user_id)
-    return result
+    return
+
+
+@app.route("/_stuff", methods=["GET"])
+def stuff():
+    db_sess = db_session.get_session()
+    costs = db_sess.query(Cost).filter(Cost.created_date >= datetime.now() - timedelta(days=1))
+    return jsonify(costs=costs)
 
 
 @app.route("/")
@@ -262,9 +270,10 @@ def publish_promo(organization_name, promo_id):
     organization = db_sess.query(Organization).filter(Organization.name == organization_name).first()
     if organization.user_id != current_user.id:
         return
-    promo = db_sess.query(Promo).filter(Promo.id == promo_id).first()
+    promo = db_sess.query(Promo).filter(Promo.id == promo_id, Promo.verified == True).first()
     db_sess.delete(promo)
     promo.cost = last_cost
+    promo.created_date = datetime.now()
     promo.verified = True
     promo.published = True
     db_sess.add(promo)
@@ -321,4 +330,4 @@ if __name__ == "__main__":
     # db_sess.commit()
     thr = threading.Thread(target=cost_counter)
     thr.start()
-    app.run(host="127.0.0.1", port=8080)
+    app.run(host="5.44.47.162", port=8080)
