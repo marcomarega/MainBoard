@@ -1,0 +1,18 @@
+{% extends "admin.html" %}
+
+{% block admin_content %}
+    {% if promos|length == 0 %}
+    <div class="alert alert-info">Currently there are no promos requiring verification</div>
+    {% else %}
+    {% for promo in promos %}
+    <div class="alert alert-primary">
+        <div class="alert alert-primary">
+            <h3>{{ promo.header }}</h3>
+            <p>{{ promo.text }}</p>
+        </div>
+        <a class="btn btn-success" href="/admin/promos/verify/{{ promo.id }}">Verify</a>
+        <a class="btn btn-danger" href="/admin/promos/decline/{{ promo.id }}">Decline</a>
+    </div>
+    {% endfor %}
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends "admin.html" %}
+
+{% block admin_content %}
+    {% if sites|length == 0 %}
+    <div class="alert alert-info">Currently there are no sites requiring verification</div>
+    {% else %}
+    {% for site in sites %}
+    <div class="alert alert-primary">
+        <h3><a href="{{ site.url }}">{{ site.name }}</a></h3>
+        <a class="btn btn-success" href="/admin/sites/verify/{{ site.id }}">Verify</a>
+        <a class="btn btn-danger" href="/admin/sites/decline/{{ site.id }}">Decline</a>
+    </div>
+    {% endfor %}
+    {% endif %}
+{% endblock %}

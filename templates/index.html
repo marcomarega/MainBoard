@@ -1,15 +1,6 @@
 {% extends "base.html" %}
 
 {% block head %}
-     <script>
-       function update_values() {
-            $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
-            $.getJSON($SCRIPT_ROOT+"/_stuff",
-                function(data) {
-                    $("#costs").text(data.costs+" %")
-                });
-        }
-     </script>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">
       google.charts.load('current', {'packages':['corechart']});

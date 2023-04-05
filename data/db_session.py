@@ -30,7 +30,7 @@ def global_init(db_file):
 
 def create_session():
     global __session
-    __session = __factory()
+    __session = __factory(expire_on_commit=False)
 
 
 def get_session() -> Session:

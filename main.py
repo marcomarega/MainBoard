@@ -26,7 +26,7 @@ last_cost = 0
 def load_user(user_id):
     db_sess = db_session.get_session()
     result = db_sess.query(User).get(user_id)
-    return
+    return result
 
 
 @app.route("/_stuff", methods=["GET"])
@@ -49,6 +49,8 @@ def index():
 @app.route("/promo_table/<site_key>")
 def promo_table(site_key):
     db_sess = db_session.get_session()
+    if not db_sess.query(Site).filter(Site.key == site_key).first():
+        return
     ip_address = request.remote_addr
     promos = db_sess.query(Promo).filter(Promo.published == True)[::-1]
     promo = None
@@ -81,7 +83,7 @@ def promo_table(site_key):
         )
         db_sess.add(promo_view)
     db_sess.commit()
-    result = render_template("promo_table.html", promos[:5])
+    result = render_template("promo_table.html", promos=promos[:5])
     return result
 
 
@@ -134,6 +136,8 @@ def logout():
 @app.route("/profile/<section>")
 @login_required
 def profile(section):
+    if current_user.is_admin:
+        return redirect("/admin")
     if section == "settings":
         return render_template("settings.html", title="Settings", current_user=current_user)
     if section == "sites":
@@ -150,6 +154,8 @@ def profile(section):
 @app.route("/profile/sites/add", methods=["GET", "POST"])
 @login_required
 def add_site():
+    if current_user.is_admin:
+        return redirect("/admin")
     form = AddSiteForm()
     if form.validate_on_submit():
         db_sess = db_session.get_session()
@@ -174,6 +180,8 @@ def add_site():
 @app.route("/profile/sites/<site_name>")
 @login_required
 def site_info(site_name):
+    if current_user.is_admin:
+        return redirect("/admin")
     db_sess = db_session.get_session()
     site = db_sess.query(Site).filter(Site.name == site_name).first()
     if site.user_id != current_user.id:
@@ -187,6 +195,8 @@ def site_info(site_name):
 @app.route("/profile/organizations/add", methods=["GET", "POST"])
 @login_required
 def add_organization():
+    if current_user.is_admin:
+        return redirect("/admin")
     form = AddOrganizationForm()
     if form.validate_on_submit():
         db_sess = db_session.get_session()
@@ -212,12 +222,16 @@ def add_organization():
 @app.route("/profile/organizations/<organization_name>")
 @login_required
 def organization_info(organization_name):
+    if current_user.is_admin:
+        return redirect("/admin")
     return redirect(f"/profile/organizations/{organization_name}/promos/not_verified")
 
 
 @app.route("/profile/organizations/<organization_name>/promos/not_verified")
 @login_required
 def promos_not_verified(organization_name):
+    if current_user.is_admin:
+        return redirect("/admin")
     db_sess = db_session.get_session()
     organization = db_sess.query(Organization).filter(Organization.name == organization_name).first()
     if organization.user_id != current_user.id:
@@ -230,6 +244,8 @@ def promos_not_verified(organization_name):
 @app.route("/profile/organizations/<organization_name>/promos/verified")
 @login_required
 def promos_verified(organization_name):
+    if current_user.is_admin:
+        return redirect("/admin")
     db_sess = db_session.get_session()
     organization = db_sess.query(Organization).filter(Organization.name == organization_name).first()
     if organization.user_id != current_user.id:
@@ -244,6 +260,8 @@ def promos_verified(organization_name):
 @app.route("/profile/organizations/<organization_name>/promos/add", methods=["GET", "POST"])
 @login_required
 def add_promos(organization_name):
+    if current_user.is_admin:
+        return redirect("/admin")
     db_sess = db_session.get_session()
     organization = db_sess.query(Organization).filter(Organization.name == organization_name).first()
     if organization.user_id != current_user.id:
@@ -266,11 +284,13 @@ def add_promos(organization_name):
 @app.route("/profile/organizations/<organization_name>/promos/publish/<promo_id>")
 @login_required
 def publish_promo(organization_name, promo_id):
+    if current_user.is_admin:
+        return redirect("/admin")
     db_sess = db_session.get_session()
     organization = db_sess.query(Organization).filter(Organization.name == organization_name).first()
     if organization.user_id != current_user.id:
         return
-    promo = db_sess.query(Promo).filter(Promo.id == promo_id, Promo.verified == True).first()
+    promo = db_sess.query(Promo).filter(Promo.id == promo_id, Promo.verified == True, Promo.published == False).first()
     db_sess.delete(promo)
     promo.cost = last_cost
     promo.created_date = datetime.now()
@@ -278,7 +298,119 @@ def publish_promo(organization_name, promo_id):
     promo.published = True
     db_sess.add(promo)
     db_sess.commit()
-    return redirect(f"/profile/organizations/{organization_name}")
+    return redirect(f"/")
+
+
+@app.route("/admin")
+@app.route("/admin/promos")
+@login_required
+def admin_promos():
+    if not current_user.is_admin:
+        return
+    db_sess = db_session.get_session()
+    promos = db_sess.query(Promo).filter(Promo.verified == False)[::]
+    return render_template("admin_promos.html", title="Promos verifying", current_user=current_user,
+                           promos=promos)
+
+
+@app.route("/admin/promos/verify/<promo_id>")
+@login_required
+def admin_promos_verify(promo_id):
+    if not current_user.is_admin:
+        return
+    db_sess = db_session.get_session()
+    promo = db_sess.query(Promo).filter(Promo.verified == False, Promo.id == promo_id).first()
+    db_sess.delete(promo)
+    promo.verified = True
+    db_sess.add(promo)
+    db_sess.commit()
+    return redirect("/admin/promos")
+
+
+@app.route("/admin/promos/decline/<promo_id>")
+@login_required
+def admin_promos_decline(promo_id):
+    if not current_user.is_admin:
+        return
+    db_sess = db_session.get_session()
+    promo = db_sess.query(Promo).filter(Promo.verified == False, Promo.id == promo_id).first()
+    db_sess.delete(promo)
+    db_sess.commit()
+    return redirect("/admin/promos")
+
+
+@app.route("/admin/organizations")
+@login_required
+def admin_organizations():
+    if not current_user.is_admin:
+        return
+    db_sess = db_session.get_session()
+    organizations = db_sess.query(Organization).filter(Organization.verified == False)[::]
+    return render_template("admin_organizations.html", title="Organizations verifying", current_user=current_user,
+                           organizations=organizations)
+
+
+@app.route("/admin/organizations/verify/<organization_id>")
+@login_required
+def admin_organizations_verify(organization_id):
+    if not current_user.is_admin:
+        return
+    db_sess = db_session.get_session()
+    organization = db_sess.query(Organization).filter(Organization.verified == False, Organization.id == organization_id).first()
+    db_sess.delete(organization)
+    organization.verified = True
+    db_sess.add(organization)
+    db_sess.commit()
+    return redirect("/admin/organizations")
+
+
+@app.route("/admin/organizations/decline/<organization_id>")
+@login_required
+def admin_organizations_decline(organization_id):
+    if not current_user.is_admin:
+        return
+    db_sess = db_session.get_session()
+    organization = db_sess.query(Organization).filter(Organization.verified == False, Organization.id == organization_id).first()
+    db_sess.delete(organization)
+    db_sess.commit()
+    return redirect("/admin/organizations")
+
+
+@app.route("/admin/sites")
+@login_required
+def admin_sites():
+    if not current_user.is_admin:
+        return
+    db_sess = db_session.get_session()
+    sites = db_sess.query(Site).filter(Site.verified == False)[::]
+    return render_template("admin_sites.html", title="Sites verifying", current_user=current_user,
+                           sites=sites)
+
+
+@app.route("/admin/sites/verify/<site_id>")
+@login_required
+def admin_sites_verify(site_id):
+    if not current_user.is_admin:
+        return
+    db_sess = db_session.get_session()
+    site = db_sess.query(Site).filter(Site.verified == False, Site.id == site_id).first()
+    db_sess.delete(site)
+    site.verified = True
+    db_sess.add(site)
+    db_sess.commit()
+    return redirect("/admin/sites")
+
+
+@app.route("/admin/sites/decline/<site_id>")
+@login_required
+def admin_sites_decline(site_id):
+    if not current_user.is_admin:
+        return
+    db_sess = db_session.get_session()
+    site = db_sess.query(Site).filter(Site.verified == False, Site.id == site_id).first()
+    db_sess.delete(site)
+    db_sess.commit()
+    return redirect("/admin/sites")
 
 
 def cost_counter():
@@ -301,7 +433,10 @@ def cost_counter():
             value=current_cost
         )
         db_sess.add(cost)
-        db_sess.commit()
+        try:
+            db_sess.commit()
+        except Exception as err:
+            print(f"{err.__class__.__name__}: err")
         last_cost = current_cost
         # if iters % 180 == 0:
         #     promo = Promo(
@@ -330,4 +465,4 @@ if __name__ == "__main__":
     # db_sess.commit()
     thr = threading.Thread(target=cost_counter)
     thr.start()
-    app.run(host="5.44.47.162", port=8080)
+    app.run(host="127.0.0.1", port=8080)

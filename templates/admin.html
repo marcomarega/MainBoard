@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>{{ current_user.username }}</h1>
+<nav class="navbar navbar-light bg-light">
+    <div>
+        <a class="btn btn-primary" href="/admin/promos">Promos</a>
+        <a class="btn btn-primary" href="/admin/organizations">Organizations</a>
+        <a class="btn btn-primary" href="/admin/sites">Sites</a>
+    </div>
+</nav>
+{% block admin_content %}{% endblock %}
+{% endblock %}
