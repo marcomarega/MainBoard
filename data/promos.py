@@ -2,7 +2,7 @@ import datetime
 import sqlalchemy
 from flask_wtf import FlaskForm
 from sqlalchemy import orm
-from wtforms import StringField, SubmitField
+from wtforms import StringField, SubmitField, URLField
 from wtforms.validators import DataRequired
 
 from .db_session import SqlAlchemyBase
@@ -17,6 +17,7 @@ class Promo(SqlAlchemyBase):
                            primary_key=True, autoincrement=True)
     header = sqlalchemy.Column(sqlalchemy.String)
     text = sqlalchemy.Column(sqlalchemy.String)
+    url = sqlalchemy.Column(sqlalchemy.String)
     cost = sqlalchemy.Column(sqlalchemy.Float)
     organization_id = sqlalchemy.Column(sqlalchemy.Integer,
                                         sqlalchemy.ForeignKey(Organization.id))
@@ -32,6 +33,7 @@ class Promo(SqlAlchemyBase):
 class AddPromoForm(FlaskForm):
     header = StringField("Title", validators=[DataRequired()])
     text = StringField("Text", validators=[DataRequired()])
+    url = URLField("URL", validators=[DataRequired()])
     submit = SubmitField("Add promo")
 
 

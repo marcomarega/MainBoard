@@ -15,8 +15,8 @@
 <body>
     {% for promo in promos %}
         <div class="alert alert-primary">
-            <h3>{{ promo.header }}</h3>
-            <p>{{ promo.text }}</p>
+            <h2><a href="{{ promo.url }}" style="color: #000000;">{{ promo.header }}</a></h2>
+            <p><a href="{{ promo.url }}" style="color: #000000;">{{ promo.text }}</a></p>
         </div>
     {% endfor %}
 </body>

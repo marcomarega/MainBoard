@@ -38,8 +38,8 @@
     <div id="curve_chart" style="width: 900px; height: 500px"></div>
     {% for promo in promos %}
         <div class="alert alert-primary">
-            <h2>{{ promo.header }}</h2>
-            <p>{{ promo.text }}</p>
+            <h2><a href="{{ promo.url }}" style="color: #000000;">{{ promo.header }}</a></h2>
+            <p><a href="{{ promo.url }}" style="color: #000000;">{{ promo.text }}</a></p>
         </div>
     {% endfor %}
 {% endblock %}

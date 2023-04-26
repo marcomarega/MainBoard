@@ -272,7 +272,8 @@ def add_promos(organization_name):
             header=form.header.data,
             text=form.text.data,
             cost=None,
-            organization_id=organization.id
+            organization_id=organization.id,
+            url=form.url.data
         )
         db_sess.add(promo)
         db_sess.commit()
